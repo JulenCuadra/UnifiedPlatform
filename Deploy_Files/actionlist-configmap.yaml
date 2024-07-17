@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: actionlist-configmap
+data:
+  actionlist.available: |
+    [ContentSection]
+    dummy-action
+    notdummy-action
+  actionlist.cached: |
+    color.good=purple
+    color.bad=yellow
+    allow.textmode=true

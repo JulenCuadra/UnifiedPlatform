@@ -1,0 +1,81 @@
+apiVersion: ehu.gcis.org/v1alpha1
+kind: Residence
+metadata:
+  name: ehu-gcis-residence
+spec:
+  name: ehu-gcis-residence
+  deploy: True
+  rooms:
+    - name: "208"
+      deploy: True
+      patients:
+        - name: "julen"
+          deploy: True
+          applications:
+            - name: heart-rate-check
+              deploy: True
+              replicas: 1
+              components:
+                - name: warning
+                  image: julencuadra/ehealth:warning
+                  flowConfig:
+                    previous:
+                      - name: trend-check
+                        IFMHtopic: data-warning
+                  permanent: False
+                - name: heart-rate-store
+                  image: julencuadra/ehealth:heart-rate-store
+                  flowConfig:
+                    previous:
+                      - name: heart-rate-acq
+                        IFMHtopic: data-heart-rate-store
+                - name: trend-check
+                  image: julencuadra/ehealth:trend-check
+                  flowConfig:
+                    next:
+                      - name: warning
+                        IFMHtopic: data-warning
+                    previous:
+                      - name: heart-rate-acq
+                        IFMHtopic: data-trend-check
+                  permanent: False
+                  events:
+                    - name: relaxed-event
+                      actions:
+                        - name: delete-self-app
+                          image: julencuadra/gcis-fog:delete-resource
+                          customization:
+                            - "target_type=Application"
+                            - "target_name=julen-heart-rate-check"
+                        - name: create-app
+                          image: julencuadra/gcis-fog:create-resource
+                          customization:
+                            - "target_type=Application"
+                            - "target_name=julen-blood-pressure-check"
+                - name: heart-rate-acq
+                  image: julencuadra/ehealth:heart-rate-acq
+                  flowConfig:
+                    next:
+                      - name: trend-check
+                        IFMHtopic: data-trend-check
+                      - name: heart-rate-store
+                        IFMHtopic: data-heart-rate-store
+                  permanent: False
+            - name: blood-pressure-check
+              deploy: False
+              replicas: 1
+              components:
+                - name: blood-pressure-store
+                  image: julencuadra/ehealth:blood-pressure-store
+                  flowConfig:
+                    previous:
+                      - name: blood-pressure-acq
+                        IFMHtopic: data-blood-pressure-store
+                  permanent: False
+                - name: blood-pressure-acq
+                  image: julencuadra/ehealth:blood-pressure-acq
+                  flowConfig:
+                    next:
+                      - name: blood-pressure-store
+                        IFMHtopic: data-blood-pressure-store
+                  permanent: False

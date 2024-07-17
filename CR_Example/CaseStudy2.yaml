@@ -1,0 +1,143 @@
+apiVersion: ehu.gcis.org/v1alpha1
+kind: Residence
+metadata:
+  name: ehu-gcis-residence
+spec:
+  name: ehu-gcis-residence
+  deploy: True
+  rooms:
+    - name: "208"
+      deploy: True
+      patients:
+        - name: "julen"
+          deploy : True
+          applications:
+            - name: ambient-monitoring
+              deploy: True
+              replicas: 1
+              components:
+                - name: monitoring-process
+                  image: julencuadra/ehealth:monitoring-process
+                  flowConfig:
+                    previous:
+                      - name: monitoring-acq
+                        IFMHtopic: data-monitoring-process
+                  permanent: False
+                  events:
+                    - name: fire-detected
+                      actions:
+                        - name: propagate-app
+                          image: julencuadra/gcis-fog:modify-resource
+                          customization:
+                            - "target_type=Application"
+                            - "target_name=julen-ambient-monitoring"
+                            - "specific_action=propagate"
+                            - "objective=patients"
+                    - name: conditions-worsen
+                      actions:
+                        - name: warn-nurse
+                          image: julencuadra/gcis-fog:warning
+                          customization:
+                            - "objective=nurse"
+                            - "room=208"
+                - name: monitoring-acq
+                  image: julencuadra/ehealth:monitoring-acq
+                  flowConfig:
+                    next:
+                      - name: monitoring-process
+                        IFMHtopic: data-monitoring-process
+                  permanent: False
+    - name: "102"
+      deploy: True
+      patients:
+        - name: "terence"
+          deploy: True
+          applications:
+            - name: dummy-app
+              deploy: False
+              replicas: 1
+              components:
+                - name: dummy-comp
+                  image: dummy-image
+                  permanent: False
+                  flowConfig:
+                    previous:
+                      - name: dummy-comp-2
+                        IFMHtopic: dummy-topic
+                    next:
+                      - name: dummy-comp-3
+                        IFMHtopic: dummy-topic
+        - name: "maria"
+          deploy: True
+          applications:
+            - name: dummy-app
+              deploy: False
+              replicas: 1
+              components:
+                - name: dummy-comp
+                  image: dummy-image
+                  permanent: False
+                  flowConfig:
+                    previous:
+                      - name: dummy-comp-2
+                        IFMHtopic: dummy-topic
+                    next:
+                      - name: dummy-comp-3
+                        IFMHtopic: dummy-topic
+    - name: "103"
+      deploy: True
+      patients:
+        - name: "carlos"
+          deploy: True
+          applications:
+            - name: dummy-app
+              deploy: False
+              replicas: 1
+              components:
+                - name: dummy-comp
+                  image: dummy-image
+                  permanent: False
+                  flowConfig:
+                    previous:
+                      - name: dummy-comp-2
+                        IFMHtopic: dummy-topic
+                    next:
+                      - name: dummy-comp-3
+                        IFMHtopic: dummy-topic
+    - name: "209"
+      deploy: True
+      patients:
+        - name: "teresa"
+          deploy: True
+          applications:
+            - name: dummy-app
+              deploy: False
+              replicas: 1
+              components:
+                - name: dummy-comp
+                  image: dummy-image
+                  permanent: False
+                  flowConfig:
+                    previous:
+                      - name: dummy-comp-2
+                        IFMHtopic: dummy-topic
+                    next:
+                      - name: dummy-comp-3
+                        IFMHtopic: dummy-topic
+        - name: "ana"
+          deploy: True
+          applications:
+            - name: dummy-app
+              deploy: False
+              replicas: 1
+              components:
+                - name: dummy-comp
+                  image: dummy-image
+                  permanent: False
+                  flowConfig:
+                    previous:
+                      - name: dummy-comp-2
+                        IFMHtopic: dummy-topic
+                    next:
+                      - name: dummy-comp-3
+                        IFMHtopic: dummy-topic

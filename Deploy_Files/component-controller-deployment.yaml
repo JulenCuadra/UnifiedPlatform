@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: /snap/kompose/19/kompose-linux-amd64 convert
+    kompose.version: 1.21.0 (992df58d8)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: component-controller
+  name: component-controller
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: component-controller
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: /snap/kompose/19/kompose-linux-amd64 convert
+        kompose.version: 1.21.0 (992df58d8)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: component-controller
+    spec:
+      containers:
+      - image: julencuadra/gcis-fog:component-controller-v2
+        imagePullPolicy: Always
+        name: component-controller
+        resources: {}
+        volumeMounts:
+          - name: actionlist-volume
+            mountPath: "/config"
+            readOnly: false
+      volumes:
+        - name: actionlist-volume
+          configMap:
+            name: actionlist-configmap
+      restartPolicy: Always
+      serviceAccountName: service-account-controller-component
+      nodeSelector:
+        node-role.kubernetes.io/master: "true"    # Para desplegarlo en el master
+status: {}
